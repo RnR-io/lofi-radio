@@ -2,7 +2,7 @@
 
 > Study smarter, not harder — distraction-free lofi music with a built-in Pomodoro timer.
 
-A minimal, beautiful web app that plays the Lofi Girl YouTube live stream in a clean interface, paired with a 25-minute Pomodoro timer. **No ads, no sidebar, no recommendations** — just the music and your focus.
+A minimal, beautiful web app that plays the Lofi Girl YouTube live stream (or any customizable YouTube video) in a clean interface, paired with a 25-minute Pomodoro timer. **No ads, no sidebar, no recommendations** — just electricity for your focus.
 
 🌐 **Live at:** [rnr-io.github.io/lofi-radio](https://rnr-io.github.io/lofi-radio/)
 
@@ -10,24 +10,27 @@ A minimal, beautiful web app that plays the Lofi Girl YouTube live stream in a c
 
 ## ✨ Features
 
-- 🎧 **Embedded Lofi Girl stream** — YouTube player with no distracting sidebar or autoplay recommendations
-- ⏱️ **Pomodoro Timer** — 25-minute focus sessions with Start / Pause / Reset controls
-- 🌊 **Glassmorphism UI** — clean frosted-glass card design on a calming blue gradient
-- 🚫 **No sign-in, no tracking** — static page, zero backend
+- 🎧 **Customizable YouTube Player** — Play Lofi Girl by default, or paste your own YouTube links via the minimalist top-right settings button.
+- ⭐ **Favorites Sidebar** — Save your favorite study tracks directly to a hidden blurred glass sidebar. It automatically fetches video thumbnails and persists your collection locally. 
+- 🌊 **Dynamic Fluid Gradient** — Features a stunning Apple-Music style ambient background! The application dynamically samples the most vibrant colors from the currently playing YouTube thumbnail to create a beautiful, continuously swirling fluid background.
+- ⏱️ **Pomodoro Timer** — 25-minute focus sessions with Start / Pause / Reset controls seamlessly built-in.
+- 🌌 **Glassmorphism UI** — An elegant, frosted-glass interface design that feels sleek and premium.
+- 🚫 **No Distractions** — Static page, zero backend, no sign-ins, and explicitly shaped to block out the noisy parts of the internet.
 
 ## 🚀 Usage
 
-Just open the link and hit **Start** when you're ready to focus.  
-The timer counts down 25 minutes — take a 5-minute break when it's done, then repeat.
+1. Open the link and hit **Start** on the Pomodoro when you're ready to focus.  
+2. If you want a different vibe, click the small link icon (🔗) to paste any YouTube link!
+3. Click the star icon (⭐) to open your personal saved favorites collection.
 
 ## 🛠️ Tech Stack
 
-- Pure HTML + CSS + JavaScript (no frameworks, no dependencies)
-- Hosted on **GitHub Pages** (free, static)
+- **Frontend:** Pure HTML + CSS + Vanilla JavaScript (no frameworks, no dependencies).
+- **Hosting:** **GitHub Pages** (free, static HTML serving).
 
-## 🔒 Private Use
+## 🔒 Privacy
 
-This is a personal productivity tool. If you'd like to keep it private, see the note below about GitHub Pages visibility.
+This is a personal productivity tool. It uses standard browser `localStorage` to save your favorites, meaning absolutely zero data leaves your local device. 
 
 ---
 
