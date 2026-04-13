@@ -35,68 +35,75 @@
         body {
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            background-color: #111;
+            /* Dynamic background base */
+            background-color: var(--color4);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 0;
             position: relative;
+            transition: background-color 2s ease;
         }
 
-        /* Ambient animated blobs */
+        /* Ambient animated fluid gradients */
         .ambient-bg {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             overflow: hidden;
             z-index: -1;
-            background: #111;
+            /* Mix colors organically */
+            background: var(--color3);
+            transition: background 2s ease;
         }
 
         .blob {
             position: absolute;
-            filter: blur(90px);
+            filter: blur(140px) saturate(150%);
             border-radius: 50%;
-            opacity: 0.6;
-            animation: float-blob 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0.9;
+            animation: swirl 20s infinite linear;
             transition: background 2s ease;
         }
 
         .blob-1 {
-            width: 70vw; height: 70vw;
+            width: 120vw; height: 120vw;
             background: var(--color1);
-            top: -20%; left: -10%;
-            animation-delay: 0s;
+            top: -40%; left: -30%;
+            animation-duration: 25s;
+            transform-origin: 60% 40%;
         }
 
         .blob-2 {
-            width: 60vw; height: 60vw;
+            width: 100vw; height: 100vw;
             background: var(--color2);
-            bottom: -20%; right: -10%;
-            animation-duration: 18s;
-            animation-delay: -2s;
+            bottom: -40%; right: -20%;
+            animation-duration: 30s;
+            animation-direction: reverse;
+            transform-origin: 30% 70%;
         }
 
         .blob-3 {
-            width: 50vw; height: 50vw;
+            width: 110vw; height: 110vw;
             background: var(--color3);
-            top: 20%; left: 30%;
-            animation-duration: 22s;
-            animation-delay: -4s;
+            top: -20%; right: -30%;
+            animation-duration: 35s;
+            transform-origin: 20% 80%;
         }
         
         .blob-4 {
-            width: 80vw; height: 80vw;
+            width: 130vw; height: 130vw;
             background: var(--color4);
-            bottom: -10%; left: -20%;
-            animation-duration: 25s;
-            animation-delay: -6s;
+            bottom: -30%; left: -40%;
+            animation-duration: 40s;
+            animation-direction: reverse;
+            transform-origin: 80% 30%;
         }
 
-        @keyframes float-blob {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(5vw, 10vh) scale(1.1); }
-            100% { transform: translate(-10vw, -5vh) scale(1.05); }
+        @keyframes swirl {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
         }
 
         /* ── Main card ── */
