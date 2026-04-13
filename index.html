@@ -25,15 +25,78 @@
             overflow: hidden;
         }
 
+        :root {
+            --color1: #6b8fa5;
+            --color2: #3d5f72;
+            --color3: #7296aa;
+            --color4: #4a6d80;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             height: 100vh;
-            background: linear-gradient(160deg, #6b8fa5 0%, #4a6d80 25%, #3d5f72 55%, #5b7d92 85%, #7296aa 100%);
+            background-color: #111;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 0;
+            position: relative;
+        }
+
+        /* Ambient animated blobs */
+        .ambient-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            z-index: -1;
+            background: #111;
+        }
+
+        .blob {
+            position: absolute;
+            filter: blur(90px);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-blob 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background 2s ease;
+        }
+
+        .blob-1 {
+            width: 70vw; height: 70vw;
+            background: var(--color1);
+            top: -20%; left: -10%;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 60vw; height: 60vw;
+            background: var(--color2);
+            bottom: -20%; right: -10%;
+            animation-duration: 18s;
+            animation-delay: -2s;
+        }
+
+        .blob-3 {
+            width: 50vw; height: 50vw;
+            background: var(--color3);
+            top: 20%; left: 30%;
+            animation-duration: 22s;
+            animation-delay: -4s;
+        }
+        
+        .blob-4 {
+            width: 80vw; height: 80vw;
+            background: var(--color4);
+            bottom: -10%; left: -20%;
+            animation-duration: 25s;
+            animation-delay: -6s;
+        }
+
+        @keyframes float-blob {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5vw, 10vh) scale(1.1); }
+            100% { transform: translate(-10vw, -5vh) scale(1.05); }
         }
 
         /* ── Main card ── */
@@ -260,6 +323,14 @@
 
 <body>
 
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+    </div>
+
     <!-- Main Card -->
     <div class="card">
         <div class="card-header">
@@ -395,6 +466,7 @@
                 document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoID}?autoplay=1`;
                 document.getElementById('videoInputWrapper').classList.remove('show');
                 input.value = '';
+                updateBackgroundColors(videoID);
             } else {
                 alert("Please enter a valid YouTube URL or Video ID.");
             }
@@ -406,7 +478,55 @@
             }
         }
 
+        function updateBackgroundColors(videoID) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = `https://img.youtube.com/vi/${videoID}/hqdefault.jpg`;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0);
+
+                function getVibrantAverageColor(x, y, w, h) {
+                    const data = ctx.getImageData(x, y, w, h).data;
+                    let r=0, g=0, b=0, count=0;
+                    for(let i=0; i<data.length; i+=16) {
+                        // ignore black/dark bars common in video thumbnails
+                        if (data[i] + data[i+1] + data[i+2] > 50) {
+                            r += data[i];
+                            g += data[i+1];
+                            b += data[i+2];
+                            count++;
+                        }
+                    }
+                    if (count === 0) return 'rgb(50,50,50)';
+                    
+                    // Boost vibrance slightly to match Apple Music feel
+                    r = Math.min(255, Math.floor((r/count) * 1.3));
+                    g = Math.min(255, Math.floor((g/count) * 1.3));
+                    b = Math.min(255, Math.floor((b/count) * 1.3));
+                    return `rgb(${r}, ${g}, ${b})`;
+                }
+
+                const width = canvas.width;
+                const height = canvas.height;
+                // Sample 4 quadrants to populate the blobs
+                const c1 = getVibrantAverageColor(0, 0, width/2, height/2);
+                const c2 = getVibrantAverageColor(width/2, 0, width/2, height/2);
+                const c3 = getVibrantAverageColor(0, height/2, width/2, height/2);
+                const c4 = getVibrantAverageColor(width/2, height/2, width/2, height/2);
+
+                document.documentElement.style.setProperty('--color1', c1);
+                document.documentElement.style.setProperty('--color2', c2);
+                document.documentElement.style.setProperty('--color3', c3);
+                document.documentElement.style.setProperty('--color4', c4);
+            };
+        }
+
         updateDisplay();
+        updateBackgroundColors('jfKfPfyJRdk');
     </script>
 
 </body>
