@@ -59,16 +59,15 @@
 
         .blob {
             position: absolute;
-            filter: blur(140px) saturate(150%);
+            filter: saturate(150%);
             border-radius: 50%;
             opacity: 0.9;
             animation: swirl 20s infinite linear;
-            transition: background 2s ease;
         }
 
         .blob-1 {
             width: 120vw; height: 120vw;
-            background: var(--color1);
+            background: radial-gradient(circle, var(--color1) 0%, transparent 60%);
             top: -40%; left: -30%;
             animation-duration: 25s;
             transform-origin: 60% 40%;
@@ -76,7 +75,7 @@
 
         .blob-2 {
             width: 100vw; height: 100vw;
-            background: var(--color2);
+            background: radial-gradient(circle, var(--color2) 0%, transparent 60%);
             bottom: -40%; right: -20%;
             animation-duration: 30s;
             animation-direction: reverse;
@@ -85,7 +84,7 @@
 
         .blob-3 {
             width: 110vw; height: 110vw;
-            background: var(--color3);
+            background: radial-gradient(circle, var(--color3) 0%, transparent 60%);
             top: -20%; right: -30%;
             animation-duration: 35s;
             transform-origin: 20% 80%;
@@ -93,7 +92,7 @@
         
         .blob-4 {
             width: 130vw; height: 130vw;
-            background: var(--color4);
+            background: radial-gradient(circle, var(--color4) 0%, transparent 60%);
             bottom: -30%; left: -40%;
             animation-duration: 40s;
             animation-direction: reverse;
