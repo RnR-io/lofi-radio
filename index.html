@@ -432,14 +432,26 @@
             padding: 10px;
             border-radius: 10px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s, transform 0.15s, opacity 0.15s, box-shadow 0.15s;
             display: flex;
             flex-direction: column;
             gap: 8px;
+            position: relative;
         }
         .fav-item:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
+        }
+        .fav-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.97);
+            box-shadow: none;
+        }
+        .fav-item.drag-over {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(0);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
         }
         .fav-title {
             font-size: 13px;
@@ -448,7 +460,27 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px;
+            max-width: 170px;
+        }
+        .fav-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .fav-drag-handle {
+            cursor: grab;
+            color: rgba(255, 255, 255, 0.3);
+            padding: 4px 2px;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+            touch-action: none;
+        }
+        .fav-drag-handle:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .fav-drag-handle:active {
+            cursor: grabbing;
         }
         .fav-remove {
             font-size: 12px;
@@ -522,7 +554,7 @@
         </div>
 
         <div class="video-wrapper">
-            <iframe id="videoFrame" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1"
+            <iframe id="videoFrame" src="https://www.youtube.com/embed/EWrX250Zhko?autoplay=1"
                 title="Lofi Girl - beats to relax/study to" frameborder="0" allow="autoplay; encrypted-media"
                 allowfullscreen>
             </iframe>
@@ -548,7 +580,7 @@
     </footer>
 
     <script>
-        let currentVideoID = 'jfKfPfyJRdk';
+        let currentVideoID = 'EWrX250Zhko';
 
         /* ── Pomodoro Timer ── */
         let time = 25 * 60;
@@ -729,6 +761,125 @@
             renderFavorites();
         }
 
+        /* ── Drag & Drop Reorder ── */
+        let dragSrcEl = null;
+
+        function handleDragStart(e) {
+            dragSrcEl = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.vid);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave() {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            if (dragSrcEl === this) return;
+
+            let favs = JSON.parse(localStorage.getItem('lofi_favorites') || '[]');
+            const fromVid = dragSrcEl.dataset.vid;
+            const toVid = this.dataset.vid;
+            const fromIdx = favs.indexOf(fromVid);
+            const toIdx = favs.indexOf(toVid);
+            if (fromIdx === -1 || toIdx === -1) return;
+
+            // Remove from old position and insert at new
+            favs.splice(fromIdx, 1);
+            favs.splice(toIdx, 0, fromVid);
+            localStorage.setItem('lofi_favorites', JSON.stringify(favs));
+            renderFavorites();
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.fav-item').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        /* ── Touch Drag Reorder ── */
+        let touchDragEl = null;
+        let touchStartY = 0;
+        let touchClone = null;
+
+        function handleTouchStart(e) {
+            // Only start drag from the handle
+            if (!e.target.closest('.fav-drag-handle')) return;
+            e.preventDefault();
+            const li = e.target.closest('.fav-item');
+            touchDragEl = li;
+            touchStartY = e.touches[0].clientY;
+            li.classList.add('dragging');
+
+            // Create a floating clone for visual feedback
+            touchClone = li.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.width = li.offsetWidth + 'px';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.style.zIndex = '9999';
+            touchClone.style.opacity = '0.85';
+            touchClone.style.transform = 'scale(1.04)';
+            touchClone.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
+            const rect = li.getBoundingClientRect();
+            touchClone.style.left = rect.left + 'px';
+            touchClone.style.top = rect.top + 'px';
+            document.body.appendChild(touchClone);
+        }
+
+        function handleTouchMove(e) {
+            if (!touchDragEl) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            if (touchClone) {
+                touchClone.style.top = (touch.clientY - 40) + 'px';
+            }
+
+            // Determine which element we're over
+            document.querySelectorAll('.fav-item').forEach(el => el.classList.remove('drag-over'));
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target) {
+                const overLi = target.closest('.fav-item');
+                if (overLi && overLi !== touchDragEl) {
+                    overLi.classList.add('drag-over');
+                }
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchDragEl) return;
+            const touch = e.changedTouches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            const overLi = target ? target.closest('.fav-item') : null;
+
+            if (overLi && overLi !== touchDragEl) {
+                let favs = JSON.parse(localStorage.getItem('lofi_favorites') || '[]');
+                const fromVid = touchDragEl.dataset.vid;
+                const toVid = overLi.dataset.vid;
+                const fromIdx = favs.indexOf(fromVid);
+                const toIdx = favs.indexOf(toVid);
+                if (fromIdx !== -1 && toIdx !== -1) {
+                    favs.splice(fromIdx, 1);
+                    favs.splice(toIdx, 0, fromVid);
+                    localStorage.setItem('lofi_favorites', JSON.stringify(favs));
+                }
+            }
+
+            touchDragEl.classList.remove('dragging');
+            document.querySelectorAll('.fav-item').forEach(el => el.classList.remove('drag-over'));
+            if (touchClone) { touchClone.remove(); touchClone = null; }
+            touchDragEl = null;
+            renderFavorites();
+        }
+
         function renderFavorites() {
             const list = document.getElementById('favoritesList');
             const favs = JSON.parse(localStorage.getItem('lofi_favorites') || '[]');
@@ -740,17 +891,41 @@
             favs.forEach(vid => {
                 const li = document.createElement('li');
                 li.className = 'fav-item';
-                li.onclick = () => playFavorite(vid);
+                li.dataset.vid = vid;
+                li.draggable = true;
+                li.onclick = (e) => {
+                    // Don't play if user was dragging or clicked handle/remove
+                    if (e.target.closest('.fav-drag-handle') || e.target.closest('.fav-remove')) return;
+                    playFavorite(vid);
+                };
                 
-                const img = `<img src="https://img.youtube.com/vi/${vid}/mqdefault.jpg" style="width: 100%; border-radius: 6px; height: 110px; object-fit: cover;" />`;
+                const img = `<img src="https://img.youtube.com/vi/${vid}/mqdefault.jpg" style="width: 100%; border-radius: 6px; height: 110px; object-fit: cover; pointer-events: none;" />`;
                 
+                const dragHandle = `<span class="fav-drag-handle" title="Drag to reorder"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg></span>`;
+
                 li.innerHTML = `
                     ${img}
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="fav-title">ID: ${vid}</span>
-                        <button class="fav-remove" title="Remove" onclick="removeFavorite(event, '${vid}')">Remove</button>
+                        <div class="fav-actions">
+                            ${dragHandle}
+                            <button class="fav-remove" title="Remove" onclick="removeFavorite(event, '${vid}')">Remove</button>
+                        </div>
                     </div>
                 `;
+
+                // Desktop drag events
+                li.addEventListener('dragstart', handleDragStart);
+                li.addEventListener('dragover', handleDragOver);
+                li.addEventListener('dragleave', handleDragLeave);
+                li.addEventListener('drop', handleDrop);
+                li.addEventListener('dragend', handleDragEnd);
+
+                // Touch drag events
+                li.addEventListener('touchstart', handleTouchStart, { passive: false });
+                li.addEventListener('touchmove', handleTouchMove, { passive: false });
+                li.addEventListener('touchend', handleTouchEnd);
+
                 list.appendChild(li);
             });
         }
