@@ -549,12 +549,13 @@
                 <div id="videoInputWrapper" class="video-input-wrapper">
                     <input type="text" id="videoUrlInput" placeholder="Paste YouTube URL..." onkeypress="handleVideoInputKey(event)" />
                     <button onclick="changeVideo()">Play</button>
+                    <button onclick="resetToDefaultVideo()" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: none;" title="Reset to default stream">Reset</button>
                 </div>
             </div>
         </div>
 
         <div class="video-wrapper">
-            <iframe id="videoFrame" src="https://www.youtube.com/embed/EWrX250Zhko?autoplay=1"
+            <iframe id="videoFrame" src="https://www.youtube.com/embed/X4VbdwhkE10?autoplay=1"
                 title="Lofi Girl - beats to relax/study to" frameborder="0" allow="autoplay; encrypted-media"
                 allowfullscreen>
             </iframe>
@@ -580,7 +581,8 @@
     </footer>
 
     <script>
-        let currentVideoID = 'EWrX250Zhko';
+        const DEFAULT_VIDEO_ID = 'X4VbdwhkE10';
+        let currentVideoID = localStorage.getItem('lofi_current_video_id') || DEFAULT_VIDEO_ID;
 
         /* ── Pomodoro Timer ── */
         let time = 25 * 60;
@@ -668,6 +670,7 @@
             const videoID = extractVideoID(url);
             if (videoID) {
                 currentVideoID = videoID;
+                localStorage.setItem('lofi_current_video_id', videoID);
                 document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${videoID}?autoplay=1`;
                 document.getElementById('videoInputWrapper').classList.remove('show');
                 input.value = '';
@@ -675,6 +678,15 @@
             } else {
                 alert("Please enter a valid YouTube URL or Video ID.");
             }
+        }
+
+        function resetToDefaultVideo() {
+            localStorage.removeItem('lofi_current_video_id');
+            currentVideoID = DEFAULT_VIDEO_ID;
+            document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${currentVideoID}?autoplay=1`;
+            document.getElementById('videoInputWrapper').classList.remove('show');
+            document.getElementById('videoUrlInput').value = '';
+            updateBackgroundColors(currentVideoID);
         }
 
         function handleVideoInputKey(e) {
@@ -930,6 +942,7 @@
             });
         }
 
+        document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${currentVideoID}?autoplay=1`;
         updateDisplay();
         updateBackgroundColors(currentVideoID);
     </script>

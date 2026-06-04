@@ -15,7 +15,7 @@ disown
 sleep 1.5
 
 # Open in default browser
-open "http://localhost:$PORT/radio.html"
+open "http://localhost:$PORT/index.html"
 
 # Wait for browser to open, then silently close this terminal window
 sleep 2
